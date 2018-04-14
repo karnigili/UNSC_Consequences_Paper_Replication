@@ -1424,24 +1424,24 @@ Variable Name(s): lpop  Number(s): 2
 
 ## 4 years conclusion ##
 match_table <- matrix(c( paste(round(GDP4.match.out$est[1], digits = 4), "(",round(GDP4.match.out$se[1], digits = 4), ")",sep=""),
-GDP4.mb$AMsmallest.p.value,
+                         round(GDP4.mb$AMsmallest.p.value, digits = 4),
 paste(round(GDP4.mout$est[1], digits = 4), "(",round(GDP4.mout$se[1], digits = 4), ")",sep=""),
-GDP4.G.mb$AMsmallest.p.value,
+round(GDP4.G.mb$AMsmallest.p.value, digits = 4),
 
 paste(round(DEMOC4.match.out$est[1], digits = 4), "(",round(DEMOC4.match.out$se[1], digits = 4), ")",sep=""),
-DEMOC4.mb$AMsmallest.p.value,
+round(DEMOC4.mb$AMsmallest.p.value, digits = 4),
 paste(round(DEMOC4.mout$est[1], digits = 4), "(",round(DEMOC4.mout$se[1], digits = 4), ")",sep=""),
-DEMOC4.G.mb$AMsmallest.p.value,
+round(DEMOC4.G.mb$AMsmallest.p.value, digits = 4),
 
 paste(round(PRESS4.match.out$est[1], digits = 4), "(",round(PRESS4.match.out$se[1], digits = 4), ")",sep=""),
-PRESS4.mb$AMsmallest.p.value,
+round(PRESS4.mb$AMsmallest.p.value, digits = 4),
 paste(round(PRESS4.mout$est[1], digits = 4), "(",round(PRESS4.mout$se[1], digits = 4), ")",sep=""),
-PRESS4.G.mb$AMsmallest.p.value,
+round(PRESS4.G.mb$AMsmallest.p.value, digits = 4),
 
 paste(round(USALIGN4.match.out$est[1], digits = 4), "(",round(USALIGN4.match.out$se[1], digits = 4), ")",sep=""),
-USALIGN4.mb$AMsmallest.p.value,
+round(USALIGN4.mb$AMsmallest.p.value, digits = 4),
 paste(round(USALIGN4.mout$est[1], digits = 4), "(",round(USALIGN4.mout$se[1], digits = 4), ")",sep=""),
-USALIGN4.G.mb$AMsmallest.p.value),
+round(USALIGN4.G.mb$AMsmallest.p.value, digits = 4)),
 
 ncol=4,byrow=TRUE)
 
@@ -1452,7 +1452,15 @@ match_table <- as.table(match_table)
 
 print ("4 years")
 match_table
-
+'''
+[1] "4 years"
+> match_table
+Original result Original balance    GenMatch result GenMatch balance 
+%∆GDPpc         -2.3803(0.8848) 0                   0.0187(0.5336)  0.2253758938254  
+∆Democracy      -0.0145(0.011)  0                   0.0045(0.0076)  0.112543615941173
+∆Press Freedoms 0.2259(0.1899)  0                   -0.1578(0.18)   0.134712086889091
+∆U.S. Alignment 0.0066(0.0072)  0.00086154883338363 -0.0075(0.0059) 0.265140925574005
+'''
 ##
 # 2. IV reg
 
