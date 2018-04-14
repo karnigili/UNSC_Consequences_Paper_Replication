@@ -1588,8 +1588,6 @@ Wald test: 0.002678 on 4 and 501 DF,  p-value: 1
 
 
 #GDP
-
-
 Y=matched_for_gdp$delta4GDPpcWB
 X=cbind(pop=matched_for_gdp$lpopWB , demaut=matched_for_gdp$demaut)
 
@@ -1598,27 +1596,19 @@ QR_M=rq(Y ~X, tau=seq(0.1, .9, by=0.1))
 plot(summary(QR_M))
 
 # DEMOC
-
-
 Y=matched_for_democ$delta4demaut
-
 X=cbind(pop=matched_for_democ$lpopWB , demaut=matched_for_democ$lGDPpcWB)
 
 
 QR_M=rq(Y ~X, tau=seq(0.1, .9, by=0.1))
 plot(summary(QR_M))
 
-matched_for_usalign <- na.data
+
 
 
 # PRESS
-
-
-
 Y=matched_for_press$delta4score
-
 X=cbind(pop=matched_for_press$lpopWB , demaut=matched_for_press$demaut, demaut=matched_for_press$lGDPpcWB)
-
 
 QR_M=rq(Y ~X, tau=seq(0.1, .9, by=0.1))
 plot(summary(QR_M))
@@ -1626,11 +1616,8 @@ plot(summary(QR_M))
 
 
 ## US ALIGNMENT
-
-
 Y=matched_for_usalign$delta4tau
 X=cbind(pop=matched_for_usalign$lpopWB , demaut=matched_for_usalign$demaut ,GDP = matched_for_usalign$GDPpcWB)
-
 
 QR_M=rq(Y ~X, tau=seq(0.1, .9, by=0.1))
 plot(summary(QR_M))
