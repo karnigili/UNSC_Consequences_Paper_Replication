@@ -6,6 +6,8 @@ library(DataCombine)
 library(Matching)
 library(MatchIt)
 library(AER)
+library(quantreg)
+library(rgenoud)
 orig_data <- read.dta("/Users/gili/drive/minerva/2/cs112/assignments/proposal research/foriegn_aid/PerniciousEffectUNSC/USaid_UNSC_selectorate_data_replication.dta")
 
 ### DATA PRE PROCESS AND FEATURE EXTRACTION ###
@@ -1580,5 +1582,56 @@ Multiple R-Squared: -242.8,	Adjusted R-squared: -244.8
 Wald test: 0.002678 on 4 and 501 DF,  p-value: 1 
 '''
 
+##
+# 3. QR
+## same original 3 vars :demaut, lpopWB, lGDPpcWB
 
+
+#GDP
+
+
+Y=matched_for_gdp$delta4GDPpcWB
+X=cbind(pop=matched_for_gdp$lpopWB , demaut=matched_for_gdp$demaut)
+
+
+QR_M=rq(Y ~X, tau=seq(0.1, .9, by=0.1))
+plot(summary(QR_M))
+
+# DEMOC
+
+
+Y=matched_for_democ$delta4demaut
+
+X=cbind(pop=matched_for_democ$lpopWB , demaut=matched_for_democ$lGDPpcWB)
+
+
+QR_M=rq(Y ~X, tau=seq(0.1, .9, by=0.1))
+plot(summary(QR_M))
+
+matched_for_usalign <- na.data
+
+
+# PRESS
+
+
+
+Y=matched_for_press$delta4score
+
+X=cbind(pop=matched_for_press$lpopWB , demaut=matched_for_press$demaut, demaut=matched_for_press$lGDPpcWB)
+
+
+QR_M=rq(Y ~X, tau=seq(0.1, .9, by=0.1))
+plot(summary(QR_M))
+
+
+
+## US ALIGNMENT
+
+
+Y=matched_for_usalign$delta4tau
+X=cbind(pop=matched_for_usalign$lpopWB , demaut=matched_for_usalign$demaut ,GDP = matched_for_usalign$GDPpcWB)
+
+
+QR_M=rq(Y ~X, tau=seq(0.1, .9, by=0.1))
+plot(summary(QR_M))
 
