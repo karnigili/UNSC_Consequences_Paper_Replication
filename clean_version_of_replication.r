@@ -527,11 +527,16 @@ orig_data$L4delta4rgdpch=L("delta4rgdpch",-4)
 
 
 ## TABLE 3: shows the average treatment effect of UNSC membership using a matching design ##
-## Using NN matching and linear regression
-## four prospective outcomes: GDP, democracy score, press freedom, and US alignment
-## each is regressed on Log(Population), Log(GDPpc), and Democracy score.
-## We measure the effect on the span of 4 years and 2 years seperately.
+# Using NN matching and linear regression
+# NN matching stands for nearest neighbor matching. This method matches each treatment 
+# unit with the contorl unit with the smallest distance from the treatment one (as a default using 
+# a logit function). The order of matching is normally set to be from largest to smallets. The order
+# is important since this is a greedy method! means, at each step it makes a local optimal decision without
+# considering the global optimum.
 
+# four prospective outcomes: GDP, democracy score, press freedom, and US alignment
+# each is regressed on Log(Population), Log(GDPpc), and Democracy score.
+# We measure the effect on the span of 4 years and 2 years seperately.
 
 
 ## 4 years ##
@@ -906,13 +911,13 @@ latex_table_3 <- xtable(table_3)
 ########################################
 
 '''
-PLAN - 4 years impact only
+There some unresolved issue with the code above (as well as the parts that were not replicated).
+The expansion of the code below attempts to specify and resolve some of these concerns,
 
-1. balance tests
-2. GenMatch + balance
-- sensitivy test
-3. IV reg
-4. QR
+1. Balance tests on the NN matching plus a sensitivity test 
+2. Using GenMatch to increase the balance decrease the bias of the results 
+3. Preform IV regression to determine (1) strength of instrument (2) GDP~AID
+4. Preform QR to show the relations between the impact on democracy in more details
 '''
 
 ### prep data ###
@@ -1665,6 +1670,7 @@ Wald test: 3.665 on 1 and 5411 DF,  p-value: 0.05563
 
 
 ### Quantile regression ###
+
 ## Quantile regression enables looking into the impact of independent variables on different quantiles 
 # of outcome distribution, it is robust to outliers. The paper mentioned that the impact veries with 
 # the level of democracy, yet did not reveal the full picture.
