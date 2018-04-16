@@ -1597,8 +1597,10 @@ Variable Name(s): lpop demaut  Number(s): 2 3
 After Matching Minimum p.value: 0.013593 
 Variable Name(s): lGDPpcWB  Number(s): 1 
 '''
+#############################
+##### further analyses: #####
+#############################
 
-# further analyses:
 
 ### IV regression ###
 
@@ -1617,7 +1619,7 @@ Variable Name(s): lGDPpcWB  Number(s): 1
 # This should produces an unbiased estimation (considering that the only variation left to be explained
 # could result from the endogenous variable).
 
-# y ~ ex + en | ex + in
+# y ~ ex + en | ex + in 
 
 # matched dataset
 matched_for_gdp <- na.data
@@ -1627,48 +1629,58 @@ ctrl <- na.data[GDP4_bias.genout$matches[,2],]
 
 matched_for_gdp <- rbind(treat, ctrl)
 
-iv <- ivreg(delta4GDPpcWB ~  demaut +lpopWB + AID |   demaut +lpopWB + UNSC , data=matched_for_gdp)
-summary(iv, vcov = sandwich)
+iv <- ivreg(delta4GDPpcWB ~ AID |  UNSC , data=matched_for_gdp)
+summary(iv, vcov = sandwich, diagnostics = TRUE)
 
 '''
 Call:
-Call:
-ivreg(formula = delta4GDPpcWB ~ demaut + lpopWB + AID | demaut + 
-lpopWB + UNSC, data = matched_for_gdp)
+ivreg(formula = delta4GDPpcWB ~ AID | UNSC, data = na.data)
 
 Residuals:
-Min       1Q   Median       3Q      Max 
--293.804  -57.937   -8.691   28.719 1046.460 
+  Min         1Q     Median         3Q        Max 
+-1.021e+02 -8.718e+00 -8.473e-13  3.706e+00  2.696e+02 
 
 Coefficients:
-            Estimate Std. Error t value Pr(>|t|)
-(Intercept) -643.9115  4360.6574  -0.148    0.883
-demaut       -23.2281   207.4580  -0.112    0.911
-lpopWB        46.8648   316.3693   0.148    0.882
-AID           -0.2832     1.9655  -0.144    0.885
+              Estimate Std. Error t value Pr(>|t|)    
+(Intercept) 18.61647    3.98603   4.670 3.08e-06 ***
+AID         -0.03053    0.01595  -1.914   0.0556 .  
 
-Residual standard error: 111.7 on 1008 degrees of freedom
-Multiple R-Squared: -75.64,	Adjusted R-squared: -75.87 
-Wald test: 0.3059 on 3 and 1008 DF,  p-value: 0.8211 
+Diagnostic tests:
+                  df1  df2 statistic  p-value    
+Weak instruments    1 5411     8.673 0.003243 ** 
+Wu-Hausman          1 5410    11.739 0.000617 ***
+Sargan              0   NA        NA       NA    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 22.87 on 5411 degrees of freedom
+Multiple R-Squared: -0.4334,	Adjusted R-squared: -0.4336 
+Wald test: 3.665 on 1 and 5411 DF,  p-value: 0.05563
 '''
-## Conclusions
-# (1) It is hard to determine anything from this table, although the estimate on AID seems negative
-# the SE is very high and the 95% confidence interval will cross 0. The p-value is also very high and
-# does not stand for any significant results.
-# IV is known of having high SE so this is not a surprise
+## observations:
+#1. Weak instruments: This is an F-test on the instruments in the first stage. 
+# The null hypothesis -> weak instruments, a rejection means our instruments are not weak.
 
 
 
 
-##
-# 3. QR
-## same original 3 vars :demaut, lpopWB, lGDPpcWB
-
+### Quantile regression ###
+## Quantile regression enables looking into the impact of independent variables on different quantiles 
+# of outcome distribution, it is robust to outliers. The paper mentioned that the impact veries with 
+# the level of democracy, yet did not reveal the full picture.
+# using the matches dataset, we regress population size and the democracy level on the delta in the GDP over
+# 4 year.
 
 #GDP
-Y=matched_for_gdp$delta4GDPpcWB
-X=cbind(pop=matched_for_gdp$lpopWB , demaut=matched_for_gdp$demaut)
-
-
-QR_M=rq(Y~X, tau=seq(0.1, .9, by=0.1))
+QR_M=rq(delta4GDPpcWB~lpopWB+demaut ,data=matched_for_gdp, tau=seq(0.1, .9, by=0.05))
 plot(summary(QR_M))
+
+# Democracy:
+# the impact flips signs between the higher and lower precentiles. It seems that countries with
+# low democraacy scores are enjoying increase in GDP while countries with medium to high deomcracy score
+# are having a near no impact on GDP. This contradicts the conclusions of the paper that says that
+# nondemocratic countries expirience stronger detrimental effects.
+
+# Population:
+# Seems that countries on both extremes precentiles expirience higher positive impact rather than
+# the median where the impact on GDP is near 0.
