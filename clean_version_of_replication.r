@@ -1551,136 +1551,114 @@ Treatment Due to Unobserved Factors
 # on the mentioned outcomes, the findings are sensitive to possible hidden bias due to an unobserved confounder.
 
 
+## higher bias GenMatch ##
+# in order to conduct further analyses, we should try and find the desired balance between variance and bias,
+# by increasing M (the number of matched control observations per treatment) we could increaase the number of observtions
+# in the matched dataset and increase the statistical power of the results, this will present a bias cost. The ideal sweet spot
+# will enable low enough vairance to come up with interesting conclusions and a low enough bias to make them relevant. 
+# To estiamte this balance, (1) variance: we will look at the p-value of the regression results (attempting to decrease it as much as possible)
+# and (2) bias: we will check the minimal p-value of the balance (attempting to increase is as much as possible).
+
+
+# The following is an attempt to increase M in the GenMatch prefomred on GDP :
+m=2
+Tr=na.data[na.data$unmem==1,]$year4SC
+Y=na.data[na.data$unmem==1,]$delta4GDPpcWB
+
+X=na.data[,!names(na.data) %in%
+            c("year4SC","delta4GDPpcWB")]
+
+C <- cov(X)
+
+GDP4_bias.genout <- GenMatch(Tr=Tr, X=X, estimand="ATT", M=m, pop.size=20, max.generations=20, wait.generations=1)
+GDP4_bias.mout <- Match(Y=Y, Tr=Tr, X=X, estimand="ATT", Weight.matrix=GDP4_bias.genout, M=m)
+
+summary(GDP4_bias.mout)
+
+GDP4_bias.G.mb <- MatchBalance(year4SC ~ lGDPpcWB+lpop+demaut,data=na.data, match.out=GDP4_bias.mout, nboots=500)
+
+
+## well these results are not fantansic but this is the best I could generate..
+'''
+Estimate...  -0.83398 
+AI SE......  0.72524 
+T-stat.....  -1.1499 
+p.val......  0.25017 
+
+Original number of observations..............  5413 
+Original number of treated obs...............  253 
+Matched number of observations...............  253 
+Matched number of observations  (unweighted).  506 
+'''
+'''
+Before Matching Minimum p.value: < 2.22e-16 
+Variable Name(s): lpop demaut  Number(s): 2 3 
+
+After Matching Minimum p.value: 0.013593 
+Variable Name(s): lGDPpcWB  Number(s): 1 
+'''
+
+# further analyses:
 
 ### IV regression ###
 
-# Encorgement design enables using
-#y ~ ex + en | ex + in
+# We suspect that the explanatory variable (aid) is correlated with the (unobserved) error term, 
+# thus with the outcome (∆GDP). This situation does not allow running an OLS regression since this endogeneity
+# will result in biased estimates. Encorgement design enables resolving this issue and looking into the impacts of aid on gdp.
+# We use an instrumental variable, UNSC membership. The presumption, which was verified earlier in the paper, is that
+# UNSC membership is uncorrelated to GDP but is correalted with aid- and so it is suitbale to be an IV.
+
+# We run two regressions, 
+# (1) Firstly, the endogenous variable (aid) is regressed on the instrument or instruments (UNSC membership), 
+# along with any other exogenous variables (controls). From these regressions we get the predicted values for the endogenous variable.
+# This step, since we assume no correlation between the IV and the outcome, moves all variation of the outcome
+# correlated with the IV to the error term, leaving only unexaplained variation.
+# (2) In the second part we regress the endogenous variable (aid) to the outcome (∆GDP).
+# This should produces an unbiased estimation (considering that the only variation left to be explained
+# could result from the endogenous variable).
+
+# y ~ ex + en | ex + in
 
 # matched dataset
 matched_for_gdp <- na.data
 
-treat <- na.data[GDP4.genout$matches[,1],]
-ctrl <- na.data[GDP4.genout$matches[,2],]
+treat <- na.data[GDP4_bias.genout$matches[,1],]
+ctrl <- na.data[GDP4_bias.genout$matches[,2],]
 
 matched_for_gdp <- rbind(treat, ctrl)
 
-m <- ivreg(delta4GDPpcWB ~  demaut +lpopWB + AID |   demaut +lpopWB +year4SC , data=matched_for_gdp)
-summary(m)
+iv <- ivreg(delta4GDPpcWB ~  demaut +lpopWB + AID |   demaut +lpopWB + UNSC , data=matched_for_gdp)
+summary(iv, vcov = sandwich)
+
 '''
+Call:
 Call:
 ivreg(formula = delta4GDPpcWB ~ demaut + lpopWB + AID | demaut + 
-lpopWB + year4SC, data = matched_for_gdp)
+lpopWB + UNSC, data = matched_for_gdp)
 
 Residuals:
-Min      1Q  Median      3Q     Max 
--52.814  -6.260   1.758   5.610  55.817 
+Min       1Q   Median       3Q      Max 
+-293.804  -57.937   -8.691   28.719 1046.460 
 
 Coefficients:
-Estimate Std. Error t value Pr(>|t|)
-(Intercept) -24.705740 155.464237  -0.159    0.874
-demaut        7.353657   9.207911   0.799    0.425
-lpopWB        1.817670  11.402255   0.159    0.873
-AID          -0.001939   0.072980  -0.027    0.979
+            Estimate Std. Error t value Pr(>|t|)
+(Intercept) -643.9115  4360.6574  -0.148    0.883
+demaut       -23.2281   207.4580  -0.112    0.911
+lpopWB        46.8648   316.3693   0.148    0.882
+AID           -0.2832     1.9655  -0.144    0.885
 
-Residual standard error: 13.11 on 502 degrees of freedom
-Multiple R-Squared: 0.07228,	Adjusted R-squared: 0.06674 
-
-Wald test: 15.45 on 3 and 502 DF,  p-value: 1.247e-09 
+Residual standard error: 111.7 on 1008 degrees of freedom
+Multiple R-Squared: -75.64,	Adjusted R-squared: -75.87 
+Wald test: 0.3059 on 3 and 1008 DF,  p-value: 0.8211 
 '''
+## Conclusions
+# (1) It is hard to determine anything from this table, although the estimate on AID seems negative
+# the SE is very high and the 95% confidence interval will cross 0. The p-value is also very high and
+# does not stand for any significant results.
+# IV is known of having high SE so this is not a surprise
 
-matched_for_democ <- na.data
 
-treat <- na.data[DEMOC4.genout$matches[,1],]
-ctrl <- na.data[DEMOC4.genout$matches[,2],]
 
-matched_for_democ <- rbind(treat, ctrl)
-
-m <- ivreg(delta4demaut ~   GDPpcWB+lpopWB + AID |   GDPpcWB +lpopWB +year4SC , data=matched_for_democ)
-summary(m)
-'''
-Call:
-ivreg(formula = delta4demaut ~ GDPpcWB + lpopWB + AID | GDPpcWB + 
-lpopWB + year4SC, data = matched_for_democ)
-
-Residuals:
-Min        1Q    Median        3Q       Max 
--0.855923 -0.014442  0.006923  0.044156  0.827646 
-
-Coefficients:
-Estimate Std. Error t value Pr(>|t|)
-(Intercept)  3.756e-01  1.536e+00   0.244    0.807
-GDPpcWB      2.509e-06  8.608e-06   0.292    0.771
-lpopWB      -2.822e-02  1.126e-01  -0.251    0.802
-AID          2.064e-04  7.334e-04   0.281    0.778
-
-Residual standard error: 0.174 on 502 degrees of freedom
-Multiple R-Squared: -0.2308,	Adjusted R-squared: -0.2381 
-Wald test: 0.1679 on 3 and 502 DF,  p-value: 0.918 
-'''
-
-matched_for_press <- na.data
-
-treat <- na.data[PRESS4.genout$matches[,1],]
-ctrl <- na.data[PRESS4.genout$matches[,2],]
-
-matched_for_press <- rbind(treat, ctrl)
-
-m <- ivreg(delta4score ~  demaut+ GDPpcWB+lpopWB + AID |   demaut+GDPpcWB +lpopWB +year4SC , data=matched_for_press)
-summary(m)
-'''
-Call:
-ivreg(formula = delta4score ~ demaut + GDPpcWB + lpopWB + AID | 
-demaut + GDPpcWB + lpopWB + year4SC, data = matched_for_press)
-
-Residuals:
-Min      1Q  Median      3Q     Max 
--45.426  -8.485  -0.982   2.407 125.026 
-
-Coefficients:
-Estimate Std. Error t value Pr(>|t|)
-(Intercept) -8.789e+01  8.182e+02  -0.107    0.915
-demaut      -1.362e+00  1.604e+01  -0.085    0.932
-GDPpcWB     -5.345e-04  4.631e-03  -0.115    0.908
-lpopWB       6.528e+00  6.057e+01   0.108    0.914
-AID         -4.166e-02  3.795e-01  -0.110    0.913
-
-Residual standard error: 16 on 501 degrees of freedom
-Multiple R-Squared: -30.68,	Adjusted R-squared: -30.93 
-Wald test: 0.03116 on 4 and 501 DF,  p-value: 0.9981 
-'''
-
-matched_for_usalign <- na.data
-
-treat <- na.data[USALIGN4.genout$matches[,1],]
-ctrl <- na.data[USALIGN4.genout$matches[,2],]
-
-matched_for_usalign <- rbind(treat, ctrl)
-
-m <- ivreg(delta4tau ~ demaut+GDPpcWB +lpopWB + AID |   demaut+GDPpcWB +lpopWB +year4SC , data=matched_for_usalign)
-summary(m)
-
-'''
-Call:
-ivreg(formula = delta4tau ~ demaut + GDPpcWB + lpopWB + AID | 
-demaut + GDPpcWB + lpopWB + year4SC, data = matched_for_usalign)
-
-Residuals:
-Min      1Q  Median      3Q     Max 
--5.7323 -0.9985 -0.1296  0.3564 16.2992 
-
-Coefficients:
-Estimate Std. Error t value Pr(>|t|)
-(Intercept) -1.123e+01  2.661e+02  -0.042    0.966
-demaut      -3.620e-02  1.431e+00  -0.025    0.980
-GDPpcWB     -6.468e-05  1.526e-03  -0.042    0.966
-lpopWB       8.268e-01  1.957e+01   0.042    0.966
-AID         -5.210e-03  1.231e-01  -0.042    0.966
-
-Residual standard error: 1.957 on 501 degrees of freedom
-Multiple R-Squared: -242.8,	Adjusted R-squared: -244.8 
-Wald test: 0.002678 on 4 and 501 DF,  p-value: 1 
-'''
 
 ##
 # 3. QR
@@ -1694,34 +1672,3 @@ X=cbind(pop=matched_for_gdp$lpopWB , demaut=matched_for_gdp$demaut)
 
 QR_M=rq(Y~X, tau=seq(0.1, .9, by=0.1))
 plot(summary(QR_M))
-
-# DEMOC
-Y=matched_for_democ$delta4demaut
-X=cbind(pop=matched_for_democ$lpopWB , demaut=matched_for_democ$lGDPpcWB)
-
-
-QR_M=rq(Y ~X, tau=seq(0.1, .9, by=0.1))
-plot(summary(QR_M))
-
-
-
-
-# PRESS
-Y=matched_for_press$delta4score
-X=cbind(pop=matched_for_press$lpopWB , demaut=matched_for_press$demaut, demaut=matched_for_press$lGDPpcWB)
-
-QR_M=rq(Y ~X, tau=seq(0.1, .9, by=0.1))
-plot(summary(QR_M))
-
-
-
-## US ALIGNMENT
-Y=matched_for_usalign$delta4tau
-X=cbind(pop=matched_for_usalign$lpopWB , demaut=matched_for_usalign$demaut ,GDP = matched_for_usalign$GDPpcWB)
-
-QR_M=rq(Y ~X, tau=seq(0.1, .9, by=0.1))
-plot(summary(QR_M))
-
-
-
-
