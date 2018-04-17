@@ -1643,7 +1643,22 @@ ctrl <- na.data[GDP4_bias.genout$matches[,2],]
 matched_for_gdp <- rbind(treat, ctrl)
 
 iv <- ivreg(delta4GDPpcWB ~ anyaid |  UNSC , data=matched_for_gdp)
-summary(iv, vcov = sandwich, diagnostics = TRUE)
+m <- summary(iv, vcov = sandwich, diagnostics = TRUE)
+xtable(m$diagnostics)
+'''
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrrr}
+\hline
+& df1 & df2 & statistic & p-value \\ 
+\hline
+Weak instruments & 1.00 & 1010.00 & 0.05 & 0.82 \\ 
+Wu-Hausman & 1.00 & 1009.00 & 1.10 & 0.29 \\ 
+Sargan & 0.00 &  &  &  \\ 
+\hline
+\end{tabular}
+\end{table}
+'''
 
 '''
 Call:
