@@ -1,5 +1,7 @@
-## https://github.com/EconometricsBySimulation/RStata/wiki/Dictionary:-Stata-to-R
-## http://www.princeton.edu/~otorres/RStata.pdf
+###############################################################################
+### REPLICATION CODE FOR The Pernicious Consequences of UN Security Council ###
+###############################################################################
+
 library(foreign)
 library(data.table)
 library(DataCombine)
@@ -1659,7 +1661,6 @@ Sargan & 0.00 &  &  &  \\
 \end{tabular}
 \end{table}
 '''
-
 '''
 Call:
 ivreg(formula = delta4GDPpcWB ~ anyaid | UNSC, data = matched_for_gdp)
@@ -1711,3 +1712,19 @@ plot(summary(QR_M))
 # Population:
 # Seems that countries on both extremes percentiles experience higher positive impact rather than
 # the median where the impact on GDP is near 0.
+
+xtable(summary(lm(delta4GDPpcWB~lpopWB+demaut,data=matched_for_gdp))$coefficients)
+'''
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrrr}
+  \hline
+ & Estimate & Std. Error & t value & Pr($>$$|$t$|$) \\ 
+  \hline
+(Intercept) & -15.45 & 4.41 & -3.51 & 0.00 \\ 
+  lpopWB & 1.28 & 0.28 & 4.65 & 0.00 \\ 
+  demaut & 6.33 & 1.05 & 6.02 & 0.00 \\ 
+   \hline
+\end{tabular}
+\end{table}
+'''
