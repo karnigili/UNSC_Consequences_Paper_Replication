@@ -25,7 +25,7 @@ orig_data <- read.dta("/Users/gili/drive/minerva/2/cs112/assignments/proposal re
 # panel the data - order bt years and ccode
 orig_data <- orig_data[order(orig_data$ccode, orig_data$year),]
 
-## lagging func
+## lagging function
 ## using slide to mimic L and F from STATA
 L <- function(var_name,  n) {
   Data <- data.frame(orig_data$year, orig_data$ccode, orig_data[,var_name])
@@ -46,7 +46,8 @@ orig_data$Ltotaid96 = L("totaid96", -1)
 orig_data$F2.T0 <- L("T0",2)
 orig_data$F1.T0 <- L("T0",1)
 orig_data$F3.T0 <- L("T0",3)
-# setting the treaatment variables:
+
+# setting the treatment variables:
 
 # 1. year4SC
 # signifies a country which was elected to UNSC this year and not already a current member (or was in the past 4 years)
@@ -94,7 +95,7 @@ orig_data$aidafter=(L("totaid96",3)+L("totaid96",4)) /2
 orig_data$F12lnTotAid96=log(orig_data$aidduring)
 orig_data$lnaidduring=log(orig_data$aidduring)
 
-## paired t test to comapre aid before and during
+## paired t test to compare aid before and during
 t.test(orig_data$aidduring,orig_data$aidbefore, paired=TRUE)
 
 '''
@@ -112,7 +113,7 @@ mean of the differences
 '''
 
 
-#UNSC includes the year of election as memebership
+#UNSC includes the year of election as membership
 orig_data$UNSC=orig_data$scmem
 orig_data$UNSC= ifelse(orig_data$T0==1,1,orig_data$UNSC)
 orig_data$UNSCimptyr = orig_data$imptyr * orig_data$UNSC
@@ -144,15 +145,15 @@ t_unsc    0    1
 
 #### The impact of SC membership on aid using probit regression
 ## * Probit regression * describes the classification probability. The coefficient values are
-## given on a normal distributed CDF, thus represet the z-value that corresponds to a specific cumulative probability
-## we can interpret them as the standardtaized normalized diffrence associated with each covariates
+## given on a normal distributed CDF, thus represent the z-value that corresponds to a specific cumulative probability
+## we can interpret them as the standardized normalized difference associated with each covariates
 ##
 ## *The intercept* is simply the expected mean value of Y where X=0.
 ## Dummy coded variables have values of 0 for the reference group and 1 for the comparison group. 
 ## Since the intercept is the expected mean value when X=0, 
 ## it is the mean value only for the reference group (when all other X=0).
 
-# These probit regressions using similar covriates to measure the impact of UNSC membership on aid, each one
+# These probit regressions using similar covariates to measure the impact of UNSC membership on aid, each one
 # uses different binary covariate.
 
 #1. scmem, simply whether a country was a member at a given year
@@ -268,7 +269,7 @@ Number of Fisher Scoring iterations: 7
 
 # conclusion: there is an increase of ~56% in aid to UNSC members
 
-#### TABLE2: correaltion between UNSC membership to the 4 outcomes : gdp, democracy, press, US alignment ##
+#### TABLE2: correlation between UNSC membership to the 4 outcomes : gdp, democracy, press, US alignment ##
 # Table 2 contains probit analyses that assess which factors influence election to the UNSC
 
 ## line 20
@@ -385,7 +386,7 @@ Observations & 3586 & 2991 \\
 
 ####### Effects of Membership of Security Council ######
 
-## feature exctartion 
+## feature extraction 
 
 orig_data$L.totaid96 <- L("totaid96",-1)
 
@@ -529,8 +530,8 @@ orig_data$L4delta4rgdpch=L("delta4rgdpch",-4)
 ## TABLE 3: shows the average treatment effect of UNSC membership using a matching design ##
 # Using NN matching and linear regression
 # NN matching stands for nearest neighbor matching. This method matches each treatment 
-# unit with the contorl unit with the smallest distance from the treatment one (as a default using 
-# a logit function). The order of matching is normally set to be from largest to smallets. The order
+# unit with the control unit with the smallest distance from the treatment one (as a default using 
+# a logit function). The order of matching is normally set to be from largest to smallest. The order
 # is important since this is a greedy method! means, at each step it makes a local optimal decision without
 # considering the global optimum.
 
@@ -541,8 +542,8 @@ orig_data$L4delta4rgdpch=L("delta4rgdpch",-4)
 
 ## 4 years ##
 
-# create a table containing smaller group of covaraites, to preform regression we need an table without Null values, reducing the
-# number of covariates enables maintaing a large numbers of observations
+# create a table containing smaller group of covariates, to preform regression we need an table without Null values, reducing the
+# number of covariates enables maintaining a large numbers of observations
 na.data <- cbind(
   as.numeric(orig_data$year), 
   as.numeric(orig_data$ccode), #country code
@@ -710,7 +711,7 @@ Matched number of observations  (unweighted).  1924
 
 
 ## 2 years ##
-## equivilant process
+## equivalent process
 na.data <- cbind(
   as.numeric(orig_data$year), 
   as.numeric(orig_data$ccode), #country code
@@ -873,17 +874,17 @@ Matched number of observations  (unweighted).  1560
 
 table_3 <- matrix(c( paste(round(GDP4.match.out$est[1], digits = 4), "(",round(GDP4.match.out$se[1], digits = 4), ")",sep=""),
                      paste(round(GDP2.match.out$est[1], digits = 4), "(",round(GDP2.match.out$se[1], digits = 4), ")",sep=""),
-      
+                     
                      paste(round(DEMOC4.match.out$est[1], digits = 4), "(",round(DEMOC4.match.out$se[1], digits = 4), ")",sep=""),
                      paste(round(DEMOC2.match.out$est[1], digits = 4), "(",round(DEMOC2.match.out$se[1], digits = 4), ")",sep=""),
                      
                      paste(round(PRESS4.match.out$est[1], digits = 4), "(",round(PRESS4.match.out$se[1], digits = 4), ")",sep=""),
                      paste(round(PRESS2.match.out$est[1], digits = 4), "(",round(PRESS2.match.out$se[1], digits = 4), ")",sep=""),
-                    
-                      paste(round(USALIGN4.match.out$est[1], digits = 4), "(",round(USALIGN4.match.out$se[1], digits = 4), ")",sep=""),
-                      paste(round(USALIGN2.match.out$est[1], digits = 4), "(",round(USALIGN2.match.out$se[1], digits = 4), ")",sep="")),
                      
-                      ncol=2,byrow=TRUE)
+                     paste(round(USALIGN4.match.out$est[1], digits = 4), "(",round(USALIGN4.match.out$se[1], digits = 4), ")",sep=""),
+                     paste(round(USALIGN2.match.out$est[1], digits = 4), "(",round(USALIGN2.match.out$se[1], digits = 4), ")",sep="")),
+                  
+                  ncol=2,byrow=TRUE)
 
 colnames(table_3) <- c("Average Treatment Effect of UNSC Four Years","Average Treatment Effect of UNSC Two Years")
 rownames(table_3) <- c("%∆GDPpc","∆Democracy","∆Press Freedoms", "∆U.S. Alignment")
@@ -1025,7 +1026,7 @@ Variable Name(s): lpop  Number(s): 2
 
 # for each one of the four outcomes I ran 2 types of GenMatch, first; using the
 # 3 given covariates, then a multivariate matching using all covariates excluding the
-# tretment and outcome ones
+# treatment and outcome ones
 
 # 1.a. GDP / 3 covs
 Tr=na.data[na.data$unmem==1,]$year4SC
@@ -1128,7 +1129,7 @@ After Matching Minimum p.value: < 2.22e-16
 Variable Name(s): lpop demaut  Number(s): 2 3 
 '''
 
-# 2.b. Democracy/ multivairate
+# 2.b. Democracy/ multivariate
 
 X=na.data[,!names(na.data) %in%
             c("year4SC","delta4demaut")]
@@ -1195,7 +1196,7 @@ After Matching Minimum p.value: < 2.22e-16
 Variable Name(s): lpop  Number(s): 2 
 '''
 
-# 3.b. Press / 3 multivairiate
+# 3.b. Press / 3 multivariate
 X=na.data[,!names(na.data) %in%
             c("year4SC","delta4score")]
 
@@ -1225,7 +1226,7 @@ After Matching Minimum p.value: 0.13471
 Variable Name(s): lpop  Number(s): 2
 '''
 
-# 4.a US alignmnet / 3 cov
+# 4.a US alignment / 3 cov
 Tr=na.data[na.data$unmem==1,]$year4SC
 Y=na.data[na.data$unmem==1,]$delta4tau
 
@@ -1261,7 +1262,7 @@ After Matching Minimum p.value: < 2.22e-16
 Variable Name(s): lpop  Number(s): 2 
 '''
 
-# 4.b US alignmnet / multivairate
+# 4.b US alignment / multivariate
 
 X=na.data[,!names(na.data) %in%
             c("year4SC","delta4tau")]
@@ -1332,7 +1333,7 @@ match_table <- as.table(match_table)
 print ("4 years")
 match_table
 '''
-                Original result original p_value Original balance GenMatch result GenMatch balance GenMatch p_value
+Original result original p_value Original balance GenMatch result GenMatch balance GenMatch p_value
 %∆GDPpc         -2.8789(0.9562) 0                0.007            -0.1415(0.6662) 0.225           0.83            
 ∆Democracy      -0.0177(0.0112) 0                0.185            0.0018(0.0103)  0.1125          0.86            
 ∆Press Freedoms 0.2717(0.2519)  0                0.23             0.2692(0.2661)  0.1347         0.38            
@@ -1359,35 +1360,35 @@ latex_match<- xtable(match_table)
 '''
 
 ## conclusions:
-# The banalce given by the authors is basically 0. Meaning the bias in their result is very high
-# by increasing the balnce we have decreased the bias, yet due to decrease in the degrees of freeedom (the number of
-# observations), we have lost the statistical power and the vairance of the results increased. This can be showen in the
+# The balance given by the authors is basically 0. Meaning the bias in their result is very high
+# by increasing the balance we have decreased the bias, yet due to decrease in the degrees of freedom (the number of
+# observations), we have lost the statistical power and the variance of the results increased. This can be shown in the
 # shift from relatively low p-values to higher p-values.
 
-## sensitivit test ##
+## sensitivity test ##
 # 1.a. original GDP
 psens(GDP4.match.out, Gamma=2, GammaInc=.2)
 '''
 Rosenbaum Sensitivity Test for Wilcoxon Signed Rank P-Value 
- 
+
 Unconfounded estimate ....  0 
 
- Gamma Lower bound Upper bound
-   1.0           0      0.0000
-   1.2           0      0.0000
-   1.4           0      0.9005
-   1.6           0      1.0000
-   1.8           0      1.0000
-   2.0           0      1.0000
+Gamma Lower bound Upper bound
+1.0           0      0.0000
+1.2           0      0.0000
+1.4           0      0.9005
+1.6           0      1.0000
+1.8           0      1.0000
+2.0           0      1.0000
 
- Note: Gamma is Odds of Differential Assignment To
- Treatment Due to Unobserved Factors 
+Note: Gamma is Odds of Differential Assignment To
+Treatment Due to Unobserved Factors 
 '''
 # 2.a. original democracy
 psens(DEMOC4.match.out, Gamma=2, GammaInc=.2)
 '''
 Rosenbaum Sensitivity Test for Wilcoxon Signed Rank P-Value 
- 
+
 Unconfounded estimate ....  0 
 
 Gamma Lower bound Upper bound
@@ -1405,25 +1406,25 @@ Treatment Due to Unobserved Factors
 psens(PRESS4.match.out, Gamma=2, GammaInc=.2)
 '''
 Rosenbaum Sensitivity Test for Wilcoxon Signed Rank P-Value 
- 
+
 Unconfounded estimate ....  0.0045 
 
- Gamma Lower bound Upper bound
-   1.0      0.0045      0.0045
-   1.2      0.0000      0.1300
-   1.4      0.0000      0.5474
-   1.6      0.0000      0.8846
-   1.8      0.0000      0.9844
-   2.0      0.0000      0.9987
+Gamma Lower bound Upper bound
+1.0      0.0045      0.0045
+1.2      0.0000      0.1300
+1.4      0.0000      0.5474
+1.6      0.0000      0.8846
+1.8      0.0000      0.9844
+2.0      0.0000      0.9987
 
- Note: Gamma is Odds of Differential Assignment To
- Treatment Due to Unobserved Factors 
+Note: Gamma is Odds of Differential Assignment To
+Treatment Due to Unobserved Factors 
 '''
 # 4.a. original US alignment
 psens(USALIGN4.match.out, Gamma=2, GammaInc=.2)
 '''
- Rosenbaum Sensitivity Test for Wilcoxon Signed Rank P-Value 
- 
+Rosenbaum Sensitivity Test for Wilcoxon Signed Rank P-Value 
+
 Unconfounded estimate ....  0.391 
 
 Gamma Lower bound Upper bound
@@ -1438,41 +1439,41 @@ Note: Gamma is Odds of Differential Assignment To
 Treatment Due to Unobserved Factors 
 '''
 
-## Conlcusion of preforming Rosenbaum Sensitivity Test for Wilcoxon Signed Rank P-Value:
+## Conclusion of preforming Rosenbaum Sensitivity Test for Wilcoxon Signed Rank P-Value:
 
 # The original results for the first three outcomes (GDP, democracy, and press freedom) showed statistical 
-# significance considering the impact UNCS membership has on them. These results are highly sensitive, as shwon 
+# significance considering the impact UNCS membership has on them. These results are highly sensitive, as shown 
 # in the above tables.
 
-# The p-value at \gamma=1 ia assumed to represent the true p-value for assuming there is no
+# The p-value at \gamma=1 is assumed to represent the true p-value for assuming there is no
 # hidden bias due to an unobserved confounder.
 # We observe that for the p-value to cross the 0.05 significance threshold, the \gamma needs to increase to
 # 1.2-1.4. Meaning that the odds of a country being in the UNSC are only 1.2-1.4 times
-# higher beacuse of diffrent values in an unobserved covariate (regardless og seemingly identical matched covariates).
-# This imlies that even a small unobserved difference in a covariate would change our inference.
+# higher because of different values in an unobserved covariate (regardless of seemingly identical matched covariates).
+# This implies that even a small unobserved difference in a covariate would change our inference.
 
 # 1.b. original GDP
 hlsens(GDP4.match.out, Gamma=2, GammaInc=.1)
 '''
 Rosenbaum Sensitivity Test for Hodges-Lehmann Point Estimate 
- 
+
 Unconfounded estimate ....  -2.4051 
 
- Gamma Lower bound Upper bound
-   1.0     -2.4051   -2.405100
-   1.1     -2.5051    0.094855
-   1.2     -2.5051    0.094855
-   1.3     -2.5051    0.094855
-   1.4     -2.5051    0.094855
-   1.5     -2.9051    0.094855
-   1.6     -3.3051    0.394860
-   1.7     -3.8051    0.794860
-   1.8     -4.2051    1.094900
-   1.9     -4.6051    1.394900
-   2.0     -5.0051    1.694900
+Gamma Lower bound Upper bound
+1.0     -2.4051   -2.405100
+1.1     -2.5051    0.094855
+1.2     -2.5051    0.094855
+1.3     -2.5051    0.094855
+1.4     -2.5051    0.094855
+1.5     -2.9051    0.094855
+1.6     -3.3051    0.394860
+1.7     -3.8051    0.794860
+1.8     -4.2051    1.094900
+1.9     -4.6051    1.394900
+2.0     -5.0051    1.694900
 
- Note: Gamma is Odds of Differential Assignment To
- Treatment Due to Unobserved Factors 
+Note: Gamma is Odds of Differential Assignment To
+Treatment Due to Unobserved Factors 
 '''
 
 # 2.b.
@@ -1502,7 +1503,7 @@ Treatment Due to Unobserved Factors
 hlsens(PRESS4.match.out, Gamma=2, GammaInc=.1)
 '''
 Rosenbaum Sensitivity Test for Hodges-Lehmann Point Estimate 
- 
+
 Unconfounded estimate ....  1 
 
 Gamma Lower bound Upper bound
@@ -1526,7 +1527,7 @@ Treatment Due to Unobserved Factors
 hlsens(USALIGN4.match.out, Gamma=2, GammaInc=.1)
 '''
 Rosenbaum Sensitivity Test for Hodges-Lehmann Point Estimate 
- 
+
 Unconfounded estimate ....  3e-04 
 
 Gamma Lower bound Upper bound
@@ -1545,27 +1546,27 @@ Gamma Lower bound Upper bound
 Note: Gamma is Odds of Differential Assignment To
 Treatment Due to Unobserved Factors 
 '''
-## Conlcusion of preforming Rosenbaum Sensitivity Test for Hodges-Lehmann Point Estimate:
+## Conclusion of preforming Rosenbaum Sensitivity Test for Hodges-Lehmann Point Estimate:
 
 # This test provides the bounds for the additive effect due to treatment. Signifying the bias introduced in the results median.
 # The change in sign implies a different direction of the treatment and will be the threshold
-# we use to determine the senstivity.
+# we use to determine the sensitivity.
 
-# This test shows evenhigher sensitivity since all outcomes flip the sign of treatment
+# This test shows even higher sensitivity since all outcomes flip the sign of treatment
 # at \gamma =1.1. Generally, we conclude that even if it seems that the UNSC has a negative impact
 # on the mentioned outcomes, the findings are sensitive to possible hidden bias due to an unobserved confounder.
 
 
 ## higher bias GenMatch ##
 # in order to conduct further analyses, we should try and find the desired balance between variance and bias,
-# by increasing M (the number of matched control observations per treatment) we could increaase the number of observtions
+# by increasing M (the number of matched control observations per treatment) we could increase the number of observations
 # in the matched dataset and increase the statistical power of the results, this will present a bias cost. The ideal sweet spot
-# will enable low enough vairance to come up with interesting conclusions and a low enough bias to make them relevant. 
-# To estiamte this balance, (1) variance: we will look at the p-value of the regression results (attempting to decrease it as much as possible)
+# will enable low enough variance to come up with interesting conclusions and a low enough bias to make them relevant. 
+# To estimate this balance, (1) variance: we will look at the p-value of the regression results (attempting to decrease it as much as possible)
 # and (2) bias: we will check the minimal p-value of the balance (attempting to increase is as much as possible).
 
 
-# The following is an attempt to increase M in the GenMatch prefomred on GDP :
+# The following is an attempt to increase M in the GenMatch preformed on GDP :
 m=2
 Tr=na.data[na.data$unmem==1,]$year4SC
 Y=na.data[na.data$unmem==1,]$delta4GDPpcWB
@@ -1583,7 +1584,7 @@ summary(GDP4_bias.mout)
 GDP4_bias.G.mb <- MatchBalance(year4SC ~ lGDPpcWB+lpop+demaut,data=na.data, match.out=GDP4_bias.mout, nboots=500)
 
 
-## well these results are not fantansic but this is the best I could generate..
+## well these results are not fantastic but this is the best I could generate..
 '''
 Estimate...  -0.83398 
 AI SE......  0.72524 
@@ -1611,15 +1612,15 @@ Variable Name(s): lGDPpcWB  Number(s): 1
 
 # We suspect that the explanatory variable (aid) is correlated with the (unobserved) error term, 
 # thus with the outcome (∆GDP). This situation does not allow running an OLS regression since this endogeneity
-# will result in biased estimates. Encorgement design enables resolving this issue and looking into the impacts of aid on gdp.
+# will result in biased estimates. Encouragement design enables resolving this issue and looking into the impacts of aid on gdp.
 # We use an instrumental variable, UNSC membership. The presumption, which was verified earlier in the paper, is that
-# UNSC membership is uncorrelated to GDP but is correalted with aid- and so it is suitbale to be an IV.
+# UNSC membership is uncorrelated to GDP but is correlated with aid- and so it is suitable to be an IV.
 
 # We run two regressions, 
 # (1) Firstly, the endogenous variable (aid) is regressed on the instrument or instruments (UNSC membership), 
 # along with any other exogenous variables (controls). From these regressions we get the predicted values for the endogenous variable.
 # This step, since we assume no correlation between the IV and the outcome, moves all variation of the outcome
-# correlated with the IV to the error term, leaving only unexaplained variation.
+# correlated with the IV to the error term, leaving only unexplained variation.
 # (2) In the second part we regress the endogenous variable (aid) to the outcome (∆GDP).
 # This should produces an unbiased estimation (considering that the only variation left to be explained
 # could result from the endogenous variable).
@@ -1642,16 +1643,16 @@ Call:
 ivreg(formula = delta4GDPpcWB ~ AID | UNSC, data = na.data)
 
 Residuals:
-  Min         1Q     Median         3Q        Max 
+Min         1Q     Median         3Q        Max 
 -1.021e+02 -8.718e+00 -8.473e-13  3.706e+00  2.696e+02 
 
 Coefficients:
-              Estimate Std. Error t value Pr(>|t|)    
+Estimate Std. Error t value Pr(>|t|)    
 (Intercept) 18.61647    3.98603   4.670 3.08e-06 ***
 AID         -0.03053    0.01595  -1.914   0.0556 .  
 
 Diagnostic tests:
-                  df1  df2 statistic  p-value    
+df1  df2 statistic  p-value    
 Weak instruments    1 5411     8.673 0.003243 ** 
 Wu-Hausman          1 5410    11.739 0.000617 ***
 Sargan              0   NA        NA       NA    
@@ -1672,7 +1673,7 @@ Wald test: 3.665 on 1 and 5411 DF,  p-value: 0.05563
 ### Quantile regression ###
 
 ## Quantile regression enables looking into the impact of independent variables on different quantiles 
-# of outcome distribution, it is robust to outliers. The paper mentioned that the impact veries with 
+# of outcome distribution, it is robust to outliers. The paper mentioned that the impact varies with 
 # the level of democracy, yet did not reveal the full picture.
 # using the matches dataset, we regress population size and the democracy level on the delta in the GDP over
 # 4 year.
@@ -1682,11 +1683,11 @@ QR_M=rq(delta4GDPpcWB~lpopWB+demaut ,data=matched_for_gdp, tau=seq(0.1, .9, by=0
 plot(summary(QR_M))
 
 # Democracy:
-# the impact flips signs between the higher and lower precentiles. It seems that countries with
-# low democraacy scores are enjoying increase in GDP while countries with medium to high deomcracy score
+# the impact flips signs between the higher and lower percentiles. It seems that countries with
+# low democracy scores are enjoying increase in GDP while countries with medium to high democracy score
 # are having a near no impact on GDP. This contradicts the conclusions of the paper that says that
-# nondemocratic countries expirience stronger detrimental effects.
+# nondemocratic countries experience stronger detrimental effects.
 
 # Population:
-# Seems that countries on both extremes precentiles expirience higher positive impact rather than
+# Seems that countries on both extremes percentiles experience higher positive impact rather than
 # the median where the impact on GDP is near 0.
