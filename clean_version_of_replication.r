@@ -13,6 +13,10 @@ library(xtable)
 library(mfx)
 library(spelling)
 
+
+set.seed(12345)
+SEED = 12345
+
 ###################
 ### IMPORT DATA ###
 ###################
@@ -1024,6 +1028,8 @@ Variable Name(s): lpop  Number(s): 2
 
 ### GenMatch ###
 
+# notice that GenMatch is a probabilistic method and results will vary between runs
+
 # for each one of the four outcomes I ran 2 types of GenMatch, first; using the
 # 3 given covariates, then a multivariate matching using all covariates excluding the
 # treatment and outcome ones
@@ -1038,7 +1044,7 @@ X=cbind(na.data[na.data$unmem==1,]$demaut,
 
 C <- cov(X)
 
-GDP4.genout <- GenMatch(Tr=Tr, X=X, estimand="ATT", M=1, pop.size=16, max.generations=10, wait.generations=1)
+GDP4.genout <- GenMatch(Tr=Tr, X=X, estimand="ATT", M=1, pop.size=16, max.generations=10, wait.generations=1, unif.seed=3392, int.seed=8282)
 GDP4.mout <- Match(Y=Y, Tr=Tr, X=X, estimand="ATT", Weight.matrix=GDP4.genout, M=1)
 
 summary(GDP4.mout)
@@ -1325,7 +1331,7 @@ match_table <- matrix(c( paste(round(GDP4.match.out$est[1], digits = 4), "(",rou
                       
                       ncol=6,byrow=TRUE)
 
-colnames(match_table) <- c("Original result","original p_value","Original balance", "GenMatch result","GenMatch balance", "GenMatch p_value")
+colnames(match_table) <- c("Original result","original balance","Original p value", "GenMatch result","GenMatch balance", "GenMatch p_value")
 rownames(match_table) <- c("%∆GDPpc","∆Democracy","∆Press Freedoms", "∆U.S. Alignment")
 match_table <- as.table(match_table)
 
@@ -1333,7 +1339,8 @@ match_table <- as.table(match_table)
 print ("4 years")
 match_table
 '''
-Original result original p_value Original balance GenMatch result GenMatch balance GenMatch p_value
+                NN matching                                     GenMatch
+                estimate      balace           p_value          estimate      balace           p_value
 %∆GDPpc         -2.8789(0.9562) 0                0.007            -0.1415(0.6662) 0.225           0.83            
 ∆Democracy      -0.0177(0.0112) 0                0.185            0.0018(0.0103)  0.1125          0.86            
 ∆Press Freedoms 0.2717(0.2519)  0                0.23             0.2692(0.2661)  0.1347         0.38            
@@ -1635,33 +1642,31 @@ ctrl <- na.data[GDP4_bias.genout$matches[,2],]
 
 matched_for_gdp <- rbind(treat, ctrl)
 
-iv <- ivreg(delta4GDPpcWB ~ AID |  UNSC , data=matched_for_gdp)
+iv <- ivreg(delta4GDPpcWB ~ anyaid |  UNSC , data=matched_for_gdp)
 summary(iv, vcov = sandwich, diagnostics = TRUE)
 
 '''
 Call:
-ivreg(formula = delta4GDPpcWB ~ AID | UNSC, data = na.data)
+ivreg(formula = delta4GDPpcWB ~ anyaid | UNSC, data = matched_for_gdp)
 
 Residuals:
-Min         1Q     Median         3Q        Max 
--1.021e+02 -8.718e+00 -8.473e-13  3.706e+00  2.696e+02 
+Min      1Q  Median      3Q     Max 
+-90.254 -35.793 -32.436   2.731 132.830 
 
 Coefficients:
-Estimate Std. Error t value Pr(>|t|)    
-(Intercept) 18.61647    3.98603   4.670 3.08e-06 ***
-AID         -0.03053    0.01595  -1.914   0.0556 .  
+Estimate Std. Error t value Pr(>|t|)
+(Intercept)   -95.04     471.67  -0.201    0.840
+anyaid        138.50     628.24   0.220    0.826
 
 Diagnostic tests:
-df1  df2 statistic  p-value    
-Weak instruments    1 5411     8.673 0.003243 ** 
-Wu-Hausman          1 5410    11.739 0.000617 ***
-Sargan              0   NA        NA       NA    
----
-Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+df1  df2 statistic p-value
+Weak instruments    1 1010     0.052   0.821
+Wu-Hausman          1 1009     1.101   0.294
+Sargan              0   NA        NA      NA
 
-Residual standard error: 22.87 on 5411 degrees of freedom
-Multiple R-Squared: -0.4334,	Adjusted R-squared: -0.4336 
-Wald test: 3.665 on 1 and 5411 DF,  p-value: 0.05563
+Residual standard error: 60.23 on 1010 degrees of freedom
+Multiple R-Squared: -21.35,	Adjusted R-squared: -21.37 
+Wald test: 0.0486 on 1 and 1010 DF,  p-value: 0.8256 
 '''
 ## observations:
 #1. Weak instruments: This is an F-test on the instruments in the first stage. 
