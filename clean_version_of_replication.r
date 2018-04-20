@@ -1098,7 +1098,7 @@ GDP4.G.mb<- MatchBalance(year4SC ~ lGDPpcWB+lpop+demaut,data=na.data, match.out=
 Before Matching Minimum p.value: < 2.22e-16 
 Variable Name(s): lpop demaut  Number(s): 2 3 
 
-After Matching Minimum p.value: 0.0040535 
+After Matching Minimum p.value: 0.12634 
 Variable Name(s): lpop  Number(s): 2  
 '''
 
@@ -1164,8 +1164,8 @@ DEMOC4.G.mb <- MatchBalance(year4SC ~ lGDPpcWB+lpop+demaut,data=na.data, match.o
 Before Matching Minimum p.value: < 2.22e-16 
 Variable Name(s): lpop demaut  Number(s): 2 3 
 
-After Matching Minimum p.value: 0.00036485 
-Variable Name(s): lpop  Number(s): 2  
+After Matching Minimum p.value: 0.23454 
+Variable Name(s): lpop  Number(s): 2 
 '''
 
 # 3.a. Press / 3 covs
@@ -1204,7 +1204,7 @@ After Matching Minimum p.value: < 2.22e-16
 Variable Name(s): lpop  Number(s): 2 
 '''
 
-# 3.b. Press / 3 multivariate
+# 3.b. Press / multivariate
 X=na.data[,!names(na.data) %in%
             c("year4SC","delta4score")]
 
@@ -1297,8 +1297,8 @@ USALIGN4.G.mb <- MatchBalance(year4SC ~ lGDPpcWB+lpop+demaut,data=na.data, match
 Before Matching Minimum p.value: < 2.22e-16 
 Variable Name(s): lpop demaut  Number(s): 2 3 
 
-After Matching Minimum p.value: 0.0049466 
-Variable Name(s): lGDPpcWB  Number(s): 1 
+After Matching Minimum p.value: 0.26514 
+Variable Name(s): lpop  Number(s): 2  
 
 '''
 
